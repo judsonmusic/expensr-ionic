@@ -1,0 +1,159 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Expensr - Portal</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding style="max-width: 1200px">
+  <ion-grid>
+    <ion-row>
+      <ion-col col-10 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12>
+        <div *ngIf="account && currentMonthData && !editMode">
+          <ion-grid>
+            <ion-row>
+              <ion-col col-8>
+                <h2>Monthly Expenses {{currentDate | date:"MMMM yyyy"}} for {{account.firstName + " " + account.lastName}}</h2>
+              </ion-col>
+              <ion-col col-4 text-right>
+                <button ion-button (click)="back()">Back</button>
+                <button ion-button (click)="next()">Next</button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-grid border *ngIf="currentMonthData.expenseList">
+            <ion-row>
+              <ion-col>
+                <h3>Starting: {{currentMonthData.startBalance | currency}}</h3>
+              </ion-col>
+              <ion-col>
+                <h3>Uncleared: {{getUnClearedTotal() | currency}}</h3>
+              </ion-col>
+              <ion-col>
+                <h3>Available: {{currentMonthData.endBalance | currency}}</h3>
+              </ion-col>
+              <ion-col right>
+                <button ion-button (click)="toggleEditMode(true)" float-right>Edit</button>
+              </ion-col>
+            </ion-row>
+            <ion-row header>
+              <ion-col>Type</ion-col>
+              <ion-col>Company</ion-col>
+              <ion-col text-right>Amount Due</ion-col>
+              <ion-col text-right>Amount Paid</ion-col>
+              <ion-col text-center>Autopay?</ion-col>
+              <ion-col text-center>Cleared?</ion-col>
+            </ion-row>
+            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type'">
+              <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
+              <ion-grid>
+                <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
+                  <ion-col>{{item.type}}</ion-col>
+                  <ion-col>{{item.company}}</ion-col>
+                  <ion-col text-right>{{item.amountDue}}</ion-col>
+                  <ion-col text-right>{{item.amountPaid}}</ion-col>
+                  <ion-col text-center>{{item.autopay}}</ion-col>
+                  <ion-col text-center>{{item.cleared ? 'yes' : 'no'}}</ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-row>
+          </ion-grid>
+        </div>
+        <!--edit mode-->
+        <div *ngIf="account && currentMonthData && editMode">
+
+          <h2>Monthly Expenses for {{account.firstName + " " + account.lastName}}</h2>
+          <ion-grid border>
+            <ion-row>
+              <ion-col col-12 col-md-4 col-lg-2>
+                <h3>Starting:</h3>
+                <ion-input class="basic-input" name="start" [(ngModel)]="currentMonthData.startBalance" (change)="calcEndBalance()" currency-formatter></ion-input>
+              </ion-col>
+              <ion-col col-12 col-md-4 col-lg-2>
+                <h3>Unclear:</h3>
+                <ion-input class="basic-input red" name="uncleared" [value]="getUnClearedTotal()" readonly="true" disabled></ion-input>
+              </ion-col>
+              <ion-col col-12 col-md-4 col-lg-2>
+                <h3>Ending:</h3>
+                <ion-input class="basic-input green" name="end" [(ngModel)]="currentMonthData.endBalance" readonly="true" disabled currency-formatter></ion-input>
+              </ion-col>
+              <ion-col text-right col-12 col-md-12 col-lg-6>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col text-right>
+                      <button ion-button (click)="saveAccount();">Save</button>
+                      <button ion-button (click)="toggleEditMode(false)">Cancel</button>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col text-right>
+                      <button ion-button (click)="clearAmountPaid();">Clear Paid</button>
+                      <button ion-button (click)="clearAmountDue();">Clear Due</button>
+                      <button ion-button (click)="clearCleared();">Clear Cleared</button>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+
+              </ion-col>
+            </ion-row>
+            <ion-row hidden-mobile header>
+              <ion-col col-12 col-md-2 col-lg-2 col-xl-2>Type</ion-col>
+              <ion-col col-12 col-md-3 col-lg-3 col-xl-3>Company</ion-col>
+              <ion-col col-12 col-md-2 col-lg-2 col-xl-2 text-right>Amount Due</ion-col>
+              <ion-col col-12 col-md-2 col-lg-2 col-xl-2 text-right>Amount Paid</ion-col>
+              <ion-col col-12 col-md-2 col-lg-2 col-xl-2 text-center>Autopay?</ion-col>
+              <ion-col col-12 col-md-1 col-lg-1 col-xl-1 text-center>Cleared?</ion-col>
+            </ion-row>
+
+            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type'">
+                <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
+                <ion-grid>
+                  <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
+                      <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                          <ion-label stacked hidden-web no-margin>Item Type</ion-label>
+                          <ion-select class="basic-input" name="type" [(ngModel)]="item.type" style="max-width: 100%;" (keyup)="calcEndBalance()">
+                            <ion-option value="{{type.value}}" *ngFor="let type of types">{{type.name}}</ion-option>
+                          </ion-select>
+                        </ion-col>
+                        <ion-col col-12 col-md-3 col-lg-3 col-xl-3>
+                          <ion-label stacked hidden-web no-margin>Company Name</ion-label>
+                          <ion-input class="basic-input" name="company" [(ngModel)]="item.company" (keyup)="calcEndBalance()"></ion-input>
+                        </ion-col>
+                        <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                          <ion-label stacked hidden-web no-margin>Amount Due</ion-label>
+                          <ion-input class="basic-input" type="currency" name="amountDue" [(ngModel)]="item.amountDue" text-right (keyup)="calcEndBalance()"
+                            currency-formatter></ion-input>
+                        </ion-col>
+                        <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                          <ion-label stacked hidden-web no-margin>Amount Paid</ion-label>
+                          <ion-input class="basic-input" name="amountPaid" type="currency" [(ngModel)]="item.amountPaid" text-right (keyup)="calcEndBalance()"
+                            currency-formatter></ion-input>
+                        </ion-col>
+                        <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                          <ion-label stacked hidden-web no-margin>Autopay?</ion-label>
+                          <ion-input text-right class="basic-input" name="autopay" [(ngModel)]="item.autopay" (keyup)="calcEndBalance()"></ion-input>
+                        </ion-col>
+                        <ion-col text-center col-12 col-md-1 col-lg-1 col-xl-1>
+                          <ion-label stacked hidden-web no-margin>Cleared?</ion-label>
+                          <ion-checkbox color="dark" name="cleared" [(ngModel)]="item.cleared" margin-half (click)="calcEndBalance()"></ion-checkbox>
+                        </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-row>
+          </ion-grid>
+        </div>
+        <ion-grid *ngIf="currentMonthData && currentMonthData.expenseList.length == 0">
+          <ion-row>
+            <ion-col text-right>
+              <button ion-button (click)="copyLastMonth()">Copy Last Month</button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

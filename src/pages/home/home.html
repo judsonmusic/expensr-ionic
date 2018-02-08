@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Expensr - Home</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-grid>
+    <ion-row>
+      <ion-col col-8>
+          <h3>Welcome to Expensr!</h3>
+          <p>Expensr allows you to track your expenses on an as needed basis. Simply record all of your monthly bills and past your
+            account balance in on a daily or as needed basis!</p>
+          <form name="frm_login" novalidate *ngIf="user">
+            <ion-list>
+              <ion-item>
+                <ion-label fixed>Username</ion-label>
+                <ion-input class="basic-input" name="useremail" type="text" value="" [(ngModel)]="user.email"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label fixed>Password</ion-label>
+                <ion-input class="basic-input" name="userpassword" type="password"  [(ngModel)]="user.password"></ion-input>
+              </ion-item>
+              <ion-item>
+                <button ion-button type="button" (click)="login();">Login</button>
+              </ion-item>
+            </ion-list>
+          </form>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

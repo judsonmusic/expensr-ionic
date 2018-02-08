@@ -1,0 +1,9 @@
+{
+  "name": "expensr-ionic",
+  "app_id": "869a8e59",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {},
+    "gulp": {}
+  }
+}
