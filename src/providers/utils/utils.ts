@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Events } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular/components/loading/loading-controller';
 import { ModalController } from 'ionic-angular/components/modal/modal-controller';
 import { AlertController } from 'ionic-angular/components/alert/alert-controller';
@@ -16,8 +17,12 @@ export class UtilsProvider {
   public globalLoader;
   public types
 
-  constructor(public http: HttpClient, public loadingCtrl: LoadingController, public modalCtrl: ModalController, public alertCtrl: AlertController) {
+  constructor(public http: HttpClient, public loadingCtrl: LoadingController, public modalCtrl: ModalController, public alertCtrl: AlertController, public events: Events) {
     //console.log('Hello UtilsProvider Provider');
+    this.events.subscribe('logout', (item) => {
+    // Do something with the clicked item data, e.g.:
+    this.showLoading();
+  });
     this.types = [
       {
         name: "Credit Card",
@@ -70,6 +75,8 @@ export class UtilsProvider {
     ];
 
   }
+
+  
 
   showLoading() {
     this.globalLoader = this.loadingCtrl.create({
