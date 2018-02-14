@@ -11,7 +11,7 @@
 <ion-content padding style="max-width: 1200px">
   <ion-grid>
     <ion-row>
-      <ion-col col-10 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12>
+      <ion-col col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12>
         <div *ngIf="account && currentMonthData && !editMode">
           <ion-grid>
             <ion-row>
@@ -102,45 +102,49 @@
               </ion-col>
             </ion-row>
             <ion-row hidden-mobile header>
-              <ion-col col-12 col-md-2 col-lg-2 col-xl-2>Type</ion-col>
-              <ion-col col-12 col-md-3 col-lg-3 col-xl-3>Company</ion-col>
-              <ion-col col-12 col-md-2 col-lg-2 col-xl-2 text-right>Amount Due</ion-col>
-              <ion-col col-12 col-md-2 col-lg-2 col-xl-2 text-right>Amount Paid</ion-col>
-              <ion-col col-12 col-md-2 col-lg-2 col-xl-2 text-center>Autopay?</ion-col>
-              <ion-col col-12 col-md-1 col-lg-1 col-xl-1 text-center>Cleared?</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-2 col-md-2 col-lg-2 col-xl-2>Type</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-3>Company</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-2 col-md-2 col-lg-2 col-xl-2 text-center>Amount Due</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-2 col-md-2 col-lg-2 col-xl-2 text-center>Amount Paid</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-2 col-md-1 col-lg-1 col-xl-1 text-center>Auto</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center>Clear</ion-col>
+              <ion-col col-12 col-xs-12 col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center>&nbsp;</ion-col>
             </ion-row>
 
             <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type':updated">
                 <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
                 <ion-grid>
                   <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
-                      <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                      <ion-col col-12 col-xs-12 col-sm-2 col-md-2 col-lg-2 col-xl-2>
                           <ion-label stacked hidden-web no-margin>Item Type</ion-label>
                           <ion-select class="basic-input" name="type" [(ngModel)]="item.type" style="max-width: 100%;" (keyup)="calcEndBalance()">
                             <ion-option value="{{type.value}}" *ngFor="let type of types">{{type.name}}</ion-option>
                           </ion-select>
                         </ion-col>
-                        <ion-col col-12 col-md-3 col-lg-3 col-xl-3>
+                        <ion-col col-12 col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-3>
                           <ion-label stacked hidden-web no-margin>Company Name</ion-label>
                           <ion-input class="basic-input" name="company" [(ngModel)]="item.company" (keyup)="calcEndBalance()"></ion-input>
                         </ion-col>
-                        <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                        <ion-col col-12 col-xs-12 col-sm-2 col-md-2 col-lg-2 col-xl-2>
                           <ion-label stacked hidden-web no-margin>Amount Due</ion-label>
                           <ion-input class="basic-input" type="currency" name="amountDue" [(ngModel)]="item.amountDue" text-right (keyup)="calcEndBalance()"
                             currency-formatter></ion-input>
                         </ion-col>
-                        <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                        <ion-col col-12 col-xs-12 col-sm-2 col-md-2 col-lg-2 col-xl-2>
                           <ion-label stacked hidden-web no-margin>Amount Paid</ion-label>
                           <ion-input class="basic-input" name="amountPaid" type="currency" [(ngModel)]="item.amountPaid" text-right (keyup)="calcEndBalance()"
                             currency-formatter></ion-input>
                         </ion-col>
-                        <ion-col col-12 col-md-2 col-lg-2 col-xl-2>
+                        <ion-col col-12 col-xs-12 col-sm-2 col-md-1 col-lg-1 col-xl-1>
                           <ion-label stacked hidden-web no-margin>Autopay?</ion-label>
                           <ion-input text-right class="basic-input" name="autopay" [(ngModel)]="item.autopay" (keyup)="calcEndBalance()"></ion-input>
                         </ion-col>
-                        <ion-col text-center col-12 col-md-1 col-lg-1 col-xl-1>
+                        <ion-col text-center col-12 col-xs-12 col-sm-1 col-md-1 col-lg-1 col-xl-1>
                           <ion-label stacked hidden-web no-margin>Cleared?</ion-label>
                           <ion-checkbox color="dark" name="cleared" [(ngModel)]="item.cleared" margin-half (click)="calcEndBalance()"></ion-checkbox>
+                        </ion-col>
+                        <ion-col text-center col-12 col-xs-12 col-sm-1 col-md-1 col-lg-1 col-xl-1>
+                          <button ion-button small (click)="deleteExpense(item)">X</button>
                         </ion-col>
                   </ion-row>
                 </ion-grid>

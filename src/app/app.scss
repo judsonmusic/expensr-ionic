@@ -14,6 +14,11 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+.item-md.item-input.ng-valid.item-input-has-value:not(.input-has-focus):not(.item-input-has-focus) .item-inner, .item-md.item-input.ng-valid.input-has-value:not(.input-has-focus):not(.item-input-has-focus) .item-inner{
+  border-bottom-color: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none;
+  }
 .modal-wrapper{
   .ion-page{
     width: 100% !important;

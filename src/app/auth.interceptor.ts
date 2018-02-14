@@ -10,8 +10,11 @@ export class AuthInterceptor implements HttpInterceptor {
       headers: req.headers.set('x-access-token', sessionStorage.getItem('jwt'))
     });
    } else{
-
     authReq = req.clone({});
+    if(window.location.hash.substr(2) !== "home"){
+    sessionStorage.clear();
+    window.location.href='';
+    }
    }
     return next.handle(authReq);
   }

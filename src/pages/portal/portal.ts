@@ -35,7 +35,7 @@ export class PortalPage {
     public navParams: NavParams,
     public account_service: AccountProvider,
     public utils: UtilsProvider,
-    public modalCtrl: ModalController  ) {
+    public modalCtrl: ModalController) {
     //TODO: please note that the month is 1 off, its actyally being stored as 0 in the DB. Why???
     this.currentMonth = parseInt(moment().format("M")) - 1;
     this.currentYear = parseInt(moment().format("YYYY"));
@@ -157,10 +157,12 @@ export class PortalPage {
   }
 
   saveAccount() {
+    this.utils.showLoading();
     //console.log('@@@Saving Account...');
     this.calcEndBalance()
       .then(() => {
         this.account_service.save(this.account).subscribe(res => {
+          this.utils.hideLoading();
           this.utils.showPromptOk(
             "Complete!",
             "The account information has been saved!",
@@ -289,10 +291,7 @@ export class PortalPage {
   } //
 
   copyLastMonth() {
-    this.utils.showConfirm(
-      "Please confirm",
-      "Are you sure you want to copy last month's data? Any current data will be lost!",
-      data => {
+    this.utils.showConfirm("Please confirm", "Are you sure you want to copy last month's data? Any current data will be lost!", data => {
         //cancel
         console.log("Nevermind..");
       },
@@ -303,19 +302,10 @@ export class PortalPage {
         );
         console.log(index);
         var lastIndex = index - 1;
-        if (
-          this.account.monthlyExpenses[lastIndex].expenseList &&
-          this.account.monthlyExpenses[lastIndex].expenseList.length > 0
-        ) {
-          this.account.monthlyExpenses[
-            index
-          ].startBalance = this.account.monthlyExpenses[lastIndex].startBalance;
-          this.account.monthlyExpenses[
-            index
-          ].endBalance = this.account.monthlyExpenses[lastIndex].endBalance;
-          this.account.monthlyExpenses[
-            index
-          ].expenseList = this.account.monthlyExpenses[lastIndex].expenseList;
+        if (this.account.monthlyExpenses[lastIndex].expenseList && this.account.monthlyExpenses[lastIndex].expenseList.length > 0) {
+          this.account.monthlyExpenses[index].startBalance = this.account.monthlyExpenses[lastIndex].startBalance;
+          this.account.monthlyExpenses[index].endBalance = this.account.monthlyExpenses[lastIndex].endBalance;
+          this.account.monthlyExpenses[index].expenseList = this.account.monthlyExpenses[lastIndex].expenseList;
           this.currentMonthData = this.account.monthlyExpenses[index];
         } else {
           this.utils.showAlert(
@@ -362,19 +352,34 @@ export class PortalPage {
     }
   } //end get total paid.
 
-  addExpense() { 
+  addExpense() {
 
 
-     this.utils.openModal(AddExpenseComponent, {}, (data) => {
-      if (data) {    
-        var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());     
+    this.utils.openModal(AddExpenseComponent, {}, (data) => {
+      if (data) {
+        var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());
         this.account.monthlyExpenses[index].expenseList.push(data);
         this.currentMonthData = this.account.monthlyExpenses[index];
-        this.updated  = new Date(); 
+        this.updated = new Date();
         this.saveAccount();
       }
     });
 
+
+  }
+
+  deleteExpense(item) {
+    this.utils.showConfirm("Please confirm", "Are you sure you want to delete this expense?", data => {
+      //cancel
+      console.log("Nevermind..");
+    },
+    data => { 
+      var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());
+      this.account.monthlyExpenses[index].expenseList.splice(this.account.monthlyExpenses[index].expenseList.indexOf(item), 1);
+      this.currentMonthData = this.account.monthlyExpenses[index];
+      this.updated = new Date();
+      this.saveAccount();
+    });
 
   }
 
