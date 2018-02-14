@@ -14,9 +14,61 @@ import { AlertController } from 'ionic-angular/components/alert/alert-controller
 export class UtilsProvider {
 
   public globalLoader;
+  public types
 
   constructor(public http: HttpClient, public loadingCtrl: LoadingController, public modalCtrl: ModalController, public alertCtrl: AlertController) {
     //console.log('Hello UtilsProvider Provider');
+    this.types = [
+      {
+        name: "Credit Card",
+        value: "Credit Card"
+      },
+      {
+        name: "Mortgage",
+        value: "Mortgage"
+      },
+      {
+        name: "Car Loan",
+        value: "Car Loan"
+      },
+      {
+        name: "Check",
+        value: "Check"
+      },
+      {
+        name: "Utilities",
+        value: "Utilities"
+      },
+      {
+        name: "Student Loan",
+        value: "Student Loan"
+      },
+      {
+        name: "Personal Loan",
+        value: "Personal Loan"
+      },
+      {
+        name: "Health Insurance",
+        value: "Health Insurance"
+      },
+      {
+        name: "Car Insurance",
+        value: "Car Insurance"
+      },
+      {
+        name: "Maintenance",
+        value: "Maintenance"
+      },
+      {
+        name: "HOA",
+        value: "HOA"
+      },
+      {
+        name: "Taxes",
+        value: "Taxes"
+      }
+    ];
+
   }
 
   showLoading() {

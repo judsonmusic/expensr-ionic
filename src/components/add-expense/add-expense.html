@@ -1,0 +1,36 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Add Expense</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list>
+    <ion-item>
+        <ion-label stacked>Type</ion-label>
+        <ion-select class="basic-input" name="type" [(ngModel)]="newExpense.type" style="max-width: 100%;" (keyup)="calcEndBalance()">
+          <ion-option value="{{type.value}}" *ngFor="let type of types">{{type.name}}</ion-option>
+        </ion-select>
+    </ion-item>
+    <ion-item>
+        <ion-label stacked no-margin>Company Name</ion-label>
+        <ion-input class="basic-input" name="company" [(ngModel)]="newExpense.company"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label stacked no-margin>Amount Due</ion-label>
+        <ion-input class="basic-input" name="company" [(ngModel)]="newExpense.amountDue"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label stacked no-margin>Amount Paid</ion-label>
+        <ion-input class="basic-input" name="company" [(ngModel)]="newExpense.amountPaid"></ion-input>
+    </ion-item>
+    <ion-item text-right>
+        <button ion-button color="Add" padding (click)="accept()">Accept</button>
+        <button ion-button color="Cancel" padding (click)="cancel()">Cancel</button>   
+    </ion-item>
+  </ion-list>
+ 
+</ion-content>

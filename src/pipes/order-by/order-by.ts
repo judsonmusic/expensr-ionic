@@ -5,12 +5,13 @@ import { Pipe, PipeTransform } from "@angular/core";
  *
  * See https://angular.io/api/core/Pipe for more info on Angular Pipes.
  */
-@Pipe({ name: "orderBy" })
+@Pipe({ name: "orderBy"})
 export class OrderByPipe implements PipeTransform {
   transform(
     array: Array<any>,
     orderField: string,
-    orderType: boolean
+    orderType: boolean,
+    updated: string
   ): Array<string> {
     if (array) {
       array.sort((a: any, b: any) => {

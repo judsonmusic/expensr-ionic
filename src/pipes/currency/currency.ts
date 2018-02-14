@@ -7,7 +7,7 @@ const PADDING = "000000";
  * See https://angular.io/api/core/Pipe for more info on Angular Pipes.
  */
 @Pipe({
-  name: 'currency',
+  name: 'currency'
 })
 export class CurrencyPipe implements PipeTransform {
   private DECIMAL_SEPARATOR: string;

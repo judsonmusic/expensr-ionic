@@ -1,8 +1,11 @@
+import { ModalController } from 'ionic-angular/components/modal/modal-controller';
+//import { AddExpenseComponent } from './../../components/add-expense/add-expense';
 import { Component } from "@angular/core";
 import { IonicPage, NavController, NavParams } from "ionic-angular";
 import { AccountProvider } from "../../providers/account/account";
 import * as moment from "moment";
 import { UtilsProvider } from "../../providers/utils/utils";
+import { AddExpenseComponent } from '../../components/add-expense/add-expense';
 
 /**
  * Generated class for the PortalPage page.
@@ -25,70 +28,21 @@ export class PortalPage {
   public newExpense;
   public currentDate;
   public editMode = false;
+  public updated;
 
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     public account_service: AccountProvider,
-    public utils: UtilsProvider
-  ) {
+    public utils: UtilsProvider,
+    public modalCtrl: ModalController  ) {
     //TODO: please note that the month is 1 off, its actyally being stored as 0 in the DB. Why???
     this.currentMonth = parseInt(moment().format("M")) - 1;
     this.currentYear = parseInt(moment().format("YYYY"));
 
     this.resetNewExpense();
 
-    this.types = [
-      {
-        name: "Credit Card",
-        value: "Credit Card"
-      },
-      {
-        name: "Mortgage",
-        value: "Mortgage"
-      },
-      {
-        name: "Car Loan",
-        value: "Car Loan"
-      },
-      {
-        name: "Check",
-        value: "Check"
-      },
-      {
-        name: "Utilities",
-        value: "Utilities"
-      },
-      {
-        name: "Student Loan",
-        value: "Student Loan"
-      },
-      {
-        name: "Personal Loan",
-        value: "Personal Loan"
-      },
-      {
-        name: "Health Insurance",
-        value: "Health Insurance"
-      },
-      {
-        name: "Car Insurance",
-        value: "Car Insurance"
-      },
-      {
-        name: "Maintenance",
-        value: "Maintenance"
-      },
-      {
-        name: "HOA",
-        value: "HOA"
-      },
-      {
-        name: "Taxes",
-        value: "Taxes"
-      }
-    ];
-
+    this.types = this.utils.types;
     // if (localStorage.getItem("date")) {
     //   console.log("The current date is: ", localStorage.getItem("date"));
     //   this.currentDate = localStorage.getItem("date");
@@ -157,7 +111,7 @@ export class PortalPage {
     }
   }
 
-  ionViewDidLoad() {}
+  ionViewDidLoad() { }
 
   //old function...
   getCurrentMonthData(date?) {
@@ -407,4 +361,21 @@ export class PortalPage {
       return 0.0;
     }
   } //end get total paid.
+
+  addExpense() { 
+
+
+     this.utils.openModal(AddExpenseComponent, {}, (data) => {
+      if (data) {    
+        var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());     
+        this.account.monthlyExpenses[index].expenseList.push(data);
+        this.currentMonthData = this.account.monthlyExpenses[index];
+        this.updated  = new Date(); 
+        this.saveAccount();
+      }
+    });
+
+
+  }
+
 } //end component

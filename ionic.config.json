@@ -1,6 +1,21 @@
 {
   "name": "expensr-ionic",
   "app_id": "869a8e59",
+  "fonts": {
+    "src": [
+      "node_modules/ionic-framework/fonts/**/*.ttf",
+      "node_modules/ionicons/dist/fonts/*.ttf",
+      "node_modules/ionicons/dist/fonts/*.woff*"
+    ],
+    "dest": "www/build/fonts"
+  },
+  "watchPatterns": [
+    "src/**/*.scss",
+    "src/**/*.html",
+    "www/**/*",
+    "!www/lib/**/*",
+    "!www/**/*.map"
+  ],
   "type": "ionic-angular",
   "integrations": {
     "cordova": {},

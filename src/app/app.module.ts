@@ -1,3 +1,4 @@
+import { AddExpenseComponent } from './../components/add-expense/add-expense';
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
@@ -13,11 +14,12 @@ import { PortalPageModule } from '../pages/portal/portal.module';
 import { UtilsProvider } from '../providers/utils/utils';
 import { DirectivesModule } from '../directives/directives.module';
 import { CurrencyPipe } from '../pipes/currency/currency';
-import {enableProdMode} from '@angular/core';
+//import { enableProdMode } from '@angular/core';
 import { OrderByPipe } from '../pipes/order-by/order-by';
 import { GroupByPipe } from '../pipes/group-by/group-by';
+import { CounterPipe } from '../pipes/counter/counter';
 
-enableProdMode();
+//enableProdMode();
 
 
 @NgModule({
@@ -34,7 +36,8 @@ enableProdMode();
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp
+    MyApp,
+    AddExpenseComponent
   ],
   providers: [
     StatusBar,
@@ -45,7 +48,8 @@ enableProdMode();
     UtilsProvider,
     CurrencyPipe,
     OrderByPipe,
-    GroupByPipe
+    GroupByPipe,
+    CounterPipe
   ]
 })
 export class AppModule {}

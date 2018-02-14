@@ -48,7 +48,7 @@
               <ion-col text-center>Autopay?</ion-col>
               <ion-col text-center>Cleared?</ion-col>
             </ion-row>
-            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type'">
+            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type':updated">
               <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
               <ion-grid>
                 <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
@@ -66,7 +66,7 @@
         <!--edit mode-->
         <div *ngIf="account && currentMonthData && editMode">
 
-          <h2>Monthly Expenses for {{account.firstName + " " + account.lastName}}</h2>
+          <h2>Monthly Expenses {{currentDate | date:"MMMM yyyy"}} for {{account.firstName + " " + account.lastName}}</h2>
           <ion-grid border>
             <ion-row>
               <ion-col col-12 col-md-4 col-lg-2>
@@ -87,6 +87,7 @@
                     <ion-col text-right>
                       <button ion-button (click)="saveAccount();">Save</button>
                       <button ion-button (click)="toggleEditMode(false)">Cancel</button>
+                      <button ion-button (click)="addExpense()">Add Expense</button>
                     </ion-col>
                   </ion-row>
                   <ion-row>
@@ -109,7 +110,7 @@
               <ion-col col-12 col-md-1 col-lg-1 col-xl-1 text-center>Cleared?</ion-col>
             </ion-row>
 
-            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type'">
+            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type':updated">
                 <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
                 <ion-grid>
                   <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
