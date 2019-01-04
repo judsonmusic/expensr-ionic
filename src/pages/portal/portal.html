@@ -12,7 +12,7 @@
   <ion-grid>
     <ion-row>
       <ion-col col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12>
-        <div *ngIf="account && currentMonthData && !editMode">
+        <div *ngIf="account && expenses && !editMode">
           <ion-grid>
             <ion-row>
               <ion-col col-8>
@@ -25,16 +25,16 @@
             </ion-row>
           </ion-grid>
 
-          <ion-grid border *ngIf="currentMonthData.expenseList">
+          <ion-grid border *ngIf="expenses.expenseList">
             <ion-row>
               <ion-col>
-                <h3>Starting: {{currentMonthData.startBalance | currency}}</h3>
+                <h3>Starting: {{expenses.startBalance | currency}}</h3>
               </ion-col>
               <ion-col>
                 <h3>Uncleared: {{getUnClearedTotal() | currency}}</h3>
               </ion-col>
               <ion-col>
-                <h3>Available: {{currentMonthData.endBalance | currency}}</h3>
+                <h3>Available: {{expenses.endBalance | currency}}</h3>
               </ion-col>
               <ion-col right>
                 <button ion-button (click)="toggleEditMode(true)" float-right>Edit</button>
@@ -48,7 +48,7 @@
               <ion-col text-center>Autopay?</ion-col>
               <ion-col text-center>Cleared?</ion-col>
             </ion-row>
-            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type':updated">
+            <ion-row *ngFor="let i of expenses.expenseList | groupBy:'type':updated">
               <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
               <ion-grid>
                 <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
@@ -64,14 +64,14 @@
           </ion-grid>
         </div>
         <!--edit mode-->
-        <div *ngIf="account && currentMonthData && editMode">
+        <div *ngIf="account && expenses && editMode">
 
           <h2>Monthly Expenses {{currentDate | date:"MMMM yyyy"}} for {{account.firstName + " " + account.lastName}}</h2>
           <ion-grid border>
             <ion-row>
               <ion-col col-12 col-md-4 col-lg-2>
                 <h3>Starting:</h3>
-                <ion-input class="basic-input" name="start" [(ngModel)]="currentMonthData.startBalance" (change)="calcEndBalance()" currency-formatter></ion-input>
+                <ion-input class="basic-input" name="start" [(ngModel)]="expenses.startBalance" (change)="calcEndBalance()" currency-formatter></ion-input>
               </ion-col>
               <ion-col col-12 col-md-4 col-lg-2>
                 <h3>Unclear:</h3>
@@ -79,13 +79,13 @@
               </ion-col>
               <ion-col col-12 col-md-4 col-lg-2>
                 <h3>Ending:</h3>
-                <ion-input class="basic-input green" name="end" [(ngModel)]="currentMonthData.endBalance" readonly="true" disabled currency-formatter></ion-input>
+                <ion-input class="basic-input green" name="end" [(ngModel)]="expenses.endBalance" readonly="true" disabled currency-formatter></ion-input>
               </ion-col>
               <ion-col text-right col-12 col-md-12 col-lg-6>
                 <ion-grid>
                   <ion-row>
                     <ion-col text-right>
-                      <button ion-button (click)="saveAccount();">Save</button>
+                      <button ion-button (click)="saveExpense();">Save</button>
                       <button ion-button (click)="toggleEditMode(false)">Cancel</button>
                       <button ion-button (click)="addExpense()">Add Expense</button>
                     </ion-col>
@@ -111,7 +111,7 @@
               <ion-col col-12 col-xs-12 col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center>&nbsp;</ion-col>
             </ion-row>
 
-            <ion-row *ngFor="let i of currentMonthData.expenseList | groupBy:'type':updated">
+            <ion-row *ngFor="let i of expenses.expenseList | groupBy:'type':updated">
                 <ion-col>You have {{ i.value.length }} items related to <strong>{{ i.key.substring(i.key.length -1) == 's' ? i.key : i.key + 's'}}</strong></ion-col>
                 <ion-grid>
                   <ion-row *ngFor="let item of i.value | orderBy:'company':false" [ngClass]="{'bg-green': item.cleared, 'bg-pink': !item.cleared}">
@@ -151,7 +151,7 @@
               </ion-row>
           </ion-grid>
         </div>
-        <ion-grid *ngIf="currentMonthData && currentMonthData.expenseList.length == 0">
+        <ion-grid *ngIf="expenses && expenses.expenseList.length == 0">
           <ion-row>
             <ion-col text-right>
               <button ion-button (click)="copyLastMonth()">Copy Last Month</button>

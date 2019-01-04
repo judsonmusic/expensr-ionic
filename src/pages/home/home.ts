@@ -11,6 +11,7 @@ import { UtilsProvider } from '../../providers/utils/utils';
 export class HomePage {
 
   public user:any = {};
+  public message:string;
 
   constructor(public navCtrl: NavController, public account: AccountProvider, public utils: UtilsProvider) {
 
@@ -25,10 +26,16 @@ export class HomePage {
 
     this.utils.showLoading();
 
-      this.account.login(this.user).subscribe((user)=>{
+      this.account.login(this.user).subscribe((res)=>{
         //this.user = user;
         //lets redirect to portal page...
-        this.navCtrl.setRoot("portal");
+        if(res.success){
+          this.navCtrl.setRoot("portal");
+        }else{
+          this.message = res.message || "Invalid Login";
+        }
+        
+        
         this.utils.hideLoading();
       })
   }

@@ -1,18 +1,11 @@
+import { ExpensesProvider } from './../../providers/expenses/expenses';
 import { ModalController } from 'ionic-angular/components/modal/modal-controller';
-//import { AddExpenseComponent } from './../../components/add-expense/add-expense';
 import { Component } from "@angular/core";
 import { IonicPage, NavController, NavParams } from "ionic-angular";
 import { AccountProvider } from "../../providers/account/account";
 import * as moment from "moment";
 import { UtilsProvider } from "../../providers/utils/utils";
 import { AddExpenseComponent } from '../../components/add-expense/add-expense';
-
-/**
- * Generated class for the PortalPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
 
 @IonicPage({ name: "portal", segment: "portal" })
 @Component({
@@ -23,57 +16,48 @@ export class PortalPage {
   public account;
   public currentMonth;
   public currentYear;
-  public currentMonthData;
   public types;
   public newExpense;
   public currentDate;
   public editMode = false;
   public updated;
+  public expenses;
 
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     public account_service: AccountProvider,
+    public expenses_provider: ExpensesProvider,
     public utils: UtilsProvider,
     public modalCtrl: ModalController) {
-    //TODO: please note that the month is 1 off, its actyally being stored as 0 in the DB. Why???
-    this.currentMonth = parseInt(moment().format("M")) - 1;
+    this.currentMonth = parseInt(moment().format("M"));
     this.currentYear = parseInt(moment().format("YYYY"));
 
     this.resetNewExpense();
 
     this.types = this.utils.types;
-    // if (localStorage.getItem("date")) {
-    //   console.log("The current date is: ", localStorage.getItem("date"));
-    //   this.currentDate = localStorage.getItem("date");
-    // } else {
-    //   this.currentDate = moment();
-    //   localStorage.setItem("date", this.currentDate);
-    // }
     this.currentDate = moment();
-    //console.log('@@CURRENT: ', this.currentDate, this.currentDate.month(), this.currentDate.year());
   } //constructor...
 
   ionViewDidEnter() {
     this.utils.showLoading();
 
     this.account_service.get().subscribe(res => {
-      let temp;
       this.account = res;
-      this.account.monthlyExpenses.map(obj => {
-        if (
-          parseInt(obj.month) === this.currentMonth &&
-          parseInt(obj.year) === this.currentYear
-        ) {
-          temp = obj;
-        }
-      });
-      //console.log('Current State: ', this.account.monthlyExpenses);
-      this.currentMonthData = this.fixData(temp);
-      //var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());
-      //console.log('The index of the month we are working with is: ', index);
+      this.getExpenses(moment().format('M'), moment().format('YYYY'));
+
+    });
+
+
+  }
+
+  getExpenses(month, year){      
+    console.log('Getting Expenses for ', month, year);
+    this.expenses_provider.get(month,year).subscribe(res => {
+      this.expenses = res;
+      console.log(this.expenses);
       this.utils.hideLoading();
-      //console.log(this.currentMonthData);
+      this.expenses = res;  
     });
   }
 
@@ -113,31 +97,17 @@ export class PortalPage {
 
   ionViewDidLoad() { }
 
-  //old function...
-  getCurrentMonthData(date?) {
-    var tempDate = this.currentDate;
-
-    if (date) {
-      tempDate = moment(this.currentDate).subtract(1, "month");
-    }
-
-    var data = this.account.monthlyExpenses.filter(
-      item => item.month == tempDate.month() && item.year == tempDate.year()
-    )[0];
-    return data;
-  } ///
 
   //add item
   add() {
     this.newExpense.date = new Date(); //date we added the line item.
     var index = this.account.monthlyExpenses.indexOf(
-      this.getCurrentMonthData()
+      //this.getexpenses()
     );
     this.account.monthlyExpenses[index].expenseList.push(this.newExpense); //push the new line item to the current month
     this.resetNewExpense();
 
     document.getElementById("company").focus();
-    //console.log('Account after expense added', this.account);
   } //end add item
 
   resetNewExpense() {
@@ -156,16 +126,16 @@ export class PortalPage {
     };
   }
 
-  saveAccount() {
+  saveExpense() {
     this.utils.showLoading();
-    //console.log('@@@Saving Account...');
+    console.log('@@@Saving Expenses...', this.expenses);
     this.calcEndBalance()
       .then(() => {
-        this.account_service.save(this.account).subscribe(res => {
+        this.expenses_provider.save(this.expenses).subscribe(res => {
           this.utils.hideLoading();
           this.utils.showPromptOk(
             "Complete!",
-            "The account information has been saved!",
+            "The expense information for this month has been saved!",
             data => {
               this.editMode = false;
             }
@@ -184,33 +154,26 @@ export class PortalPage {
   } //end toggle edit mode...
 
   getUnClearedTotal() {
-    if (this.currentMonthData.expenseList) {
-      var total = 0.0;
-      for (var i = 0; i < this.currentMonthData.expenseList.length; i++) {
+    if (this.expenses.expenseList) {
+      var total = 0.00;
+      for (var i = 0; i < this.expenses.expenseList.length; i++) {
         if (
-          this.currentMonthData.expenseList[i].amountPaid &&
-          !this.currentMonthData.expenseList[i].cleared
+          this.expenses.expenseList[i].amountPaid && !this.expenses.expenseList[i].cleared
         ) {
-          total += parseFloat(this.currentMonthData.expenseList[i].amountPaid);
+          total += parseFloat(this.expenses.expenseList[i].amountPaid);
         }
       }
-
-      return total.toFixed(2);
+      return Number(total).toFixed(2);
     } else {
-      return 0.0;
+      return 0.00;
     }
   } //end get uncleared total.
 
   calcEndBalance() {
     return new Promise((resolve, reject) => {
-      let uct = Number(this.getUnClearedTotal());
-      this.currentMonthData.startBalance = parseFloat(
-        this.fixCurrency(this.currentMonthData.startBalance)
-      );
-      //console.log('The start balance is:', parseFloat(this.fixCurrency(this.currentMonthData.startBalance)), ' |' , 'The uncleared total is: ', uct);
-      this.currentMonthData.endBalance = (
-        this.currentMonthData.startBalance - uct
-      ).toFixed(2);
+      let uct = this.fixCurrency(this.getUnClearedTotal());
+      this.expenses.startBalance = this.fixCurrency(this.expenses.startBalance);      
+      this.expenses.endBalance = this.fixCurrency(this.expenses.startBalance - uct).toFixed(2);
       resolve();
     });
   } //end calculate end balance.
@@ -234,60 +197,42 @@ export class PortalPage {
 
   //back and next functions...
   next() {
-    //increment date and year accordingly.
-    this.currentDate = moment(this.currentDate).add(1, "month");
-    //console.log('@@NEXT: ', this.currentDate.month(), this.currentDate.year());
-    let temp = this.account.monthlyExpenses.filter(
-      item =>
-        item.month == this.currentDate.month() &&
-        item.year == this.currentDate.year()
-    )[0];
-    //console.log('Checking to see if we have data for the current month: ' ,temp);
-    if (!temp) {
-      console.log("We dont have data for the current month so lets build it.");
-      temp = {
-        month: this.currentDate.month(),
-        year: this.currentDate.year(),
-        expenseList: []
-      };
-    }
-    //now lets fix the data...
-    this.currentMonthData = this.fixData(temp);
-    //console.log('Push the new data to the array current array count is: ', this.account.monthlyExpenses.length);
-    this.account.monthlyExpenses.push(this.currentMonthData);
-    //console.log('The new array count is: ', this.account.monthlyExpenses.length);
+    // //increment date and year accordingly.
+    // this.currentDate = moment(this.currentDate).add(1, "month");
+    // //console.log('@@NEXT: ', this.currentDate.month(), this.currentDate.year());
+    // let temp = this.expenses.filter(
+    //   item =>
+    //     item.month == this.currentDate.month() &&
+    //     item.year == this.currentDate.year()
+    // )[0];
+    // if (!temp) {
+    //   console.log("We dont have data for the current month so lets build it.");
+    //   temp = {
+    //     month: this.currentDate.month(),
+    //     year: this.currentDate.year(),
+    //     expenseList: []
+    //   };
+    // }
+    // //now lets fix the data...
+    // this.expenses = this.fixData(temp);
+    // this.account.monthlyExpenses.push(this.expenses);
   }
 
   back() {
-    //increment date and year accordingly.
-    this.currentDate = moment(this.currentDate).add(-1, "month");
-    //console.log('@@BACK: ', this.currentDate.month(), this.currentDate.year());
-    //console.log('@@BACK: ', this.currentDate);
-    //localStorage.setItem("date", this.currentDate);
-    let temp = this.account.monthlyExpenses.filter(
-      item =>
-        item.month == this.currentDate.month() &&
-        item.year == this.currentDate.year()
-    )[0];
-    //set the data.
-    this.currentMonthData = this.fixData(temp);
-    /**
-     * This logic should not apply because anything in the past should already be created.
-     * console.log('Checking to see if we have data for the current month: ' ,temp);
-    if (!temp) {
-      console.log('We dont have data for the current month so lets build it.');
-      temp = {
-        month: (this.currentDate.month()-1).toString(),
-        year: this.currentDate.year().toString(),
-        expenseList: []
-      };
-    }
-    //now lets fix the data...
-    this.currentMonthData = this.fixData(temp);
-    console.log('Push the new data to the array current array count is: ', this.account.monthlyExpenses.length);
-    this.account.monthlyExpenses.push(this.currentMonthData);
-    console.log('The new array count is: ', this.account.monthlyExpenses.length);
-    */
+    // /**TODO
+    //  * we need to query the database each time they hit next and back and use the middleware to build a new table if needed...
+   
+    //  */
+    // //increment date and year accordingly.
+    // this.currentDate = moment(this.currentDate).add(-1, "month");
+    // let temp = this.expenses.filter(
+    //   item =>
+    //     item.month == this.currentDate.month() &&
+    //     item.year == this.currentDate.year()
+    // )[0];
+    // //set the data.
+    // this.expenses = this.fixData(temp);
+    
   } //
 
   copyLastMonth() {
@@ -298,7 +243,7 @@ export class PortalPage {
       data => {
         //ok
         var index = this.account.monthlyExpenses.indexOf(
-          this.getCurrentMonthData()
+          //this.getexpenses()
         );
         console.log(index);
         var lastIndex = index - 1;
@@ -306,7 +251,7 @@ export class PortalPage {
           this.account.monthlyExpenses[index].startBalance = this.account.monthlyExpenses[lastIndex].startBalance;
           this.account.monthlyExpenses[index].endBalance = this.account.monthlyExpenses[lastIndex].endBalance;
           this.account.monthlyExpenses[index].expenseList = this.account.monthlyExpenses[lastIndex].expenseList;
-          this.currentMonthData = this.account.monthlyExpenses[index];
+          this.expenses = this.account.monthlyExpenses[index];
         } else {
           this.utils.showAlert(
             "Alert!",
@@ -318,32 +263,32 @@ export class PortalPage {
   }
 
   clearAmountPaid() {
-    this.currentMonthData.expenseList.map(obj => {
+    this.expenses.expenseList.map(obj => {
       obj.amountPaid = 0.0;
     });
     this.calcEndBalance();
   }
 
   clearAmountDue() {
-    this.currentMonthData.expenseList.map(obj => {
+    this.expenses.expenseList.map(obj => {
       obj.amountDue = 0.0;
     });
     this.calcEndBalance();
   }
 
   clearCleared() {
-    this.currentMonthData.expenseList.map(obj => {
+    this.expenses.expenseList.map(obj => {
       obj.cleared = false;
     });
     this.calcEndBalance();
   }
 
   getTotalPaid() {
-    if (this.currentMonthData.expenseList) {
+    if (this.expenses.expenseList) {
       var total = 0;
-      for (var i = 0; i < this.currentMonthData.expenseList.length; i++) {
-        if (this.currentMonthData.expenseList[i].amountPaid) {
-          total += parseFloat(this.currentMonthData.expenseList[i].amountPaid);
+      for (var i = 0; i < this.expenses.expenseList.length; i++) {
+        if (this.expenses.expenseList[i].amountPaid) {
+          total += parseFloat(this.expenses.expenseList[i].amountPaid);
         }
       }
       return total;
@@ -354,15 +299,14 @@ export class PortalPage {
 
   addExpense() {
 
-
     this.utils.openModal(AddExpenseComponent, {}, (data) => {
-      if (data) {
-        var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());
-        this.account.monthlyExpenses[index].expenseList.push(data);
-        this.currentMonthData = this.account.monthlyExpenses[index];
-        this.updated = new Date();
-        this.saveAccount();
-      }
+      // if (data) {
+      //   var index = this.expenses.expenseList.indexOf(this.getexpenses());
+      //   this.expenses.expenseList.push(data);
+      //   this.expenses = this.expenses
+      //   this.updated = new Date();
+      //   this.saveExpense();
+      // }
     });
 
 
@@ -374,11 +318,13 @@ export class PortalPage {
       console.log("Nevermind..");
     },
     data => { 
-      var index = this.account.monthlyExpenses.indexOf(this.getCurrentMonthData());
-      this.account.monthlyExpenses[index].expenseList.splice(this.account.monthlyExpenses[index].expenseList.indexOf(item), 1);
-      this.currentMonthData = this.account.monthlyExpenses[index];
-      this.updated = new Date();
-      this.saveAccount();
+      console.log(item);
+       var index = this.expenses.expenseList.indexOf(item);
+       console.log(index);
+       this.expenses.expenseList.splice(index, 1);
+       //this.expenses = this.account.monthlyExpenses[index];
+       this.updated = new Date();
+       this.saveExpense();
     });
 
   }

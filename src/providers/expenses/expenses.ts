@@ -1,5 +1,5 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/catch";
 import "rxjs/add/observable/throw";
@@ -10,41 +10,27 @@ import { Subject } from "rxjs/Subject";
 import { UtilsProvider } from "../utils/utils";
 
 /*
-  Generated class for the AccountProvider provider.
+  Generated class for the ExpensesProvider provider.
 
   See https://angular.io/guide/dependency-injection for more info on providers
   and Angular DI.
 */
 @Injectable()
-export class AccountProvider {
+export class ExpensesProvider {
+
   public account = new Subject<any>();
   public account$: Observable<any>;
   public account_id = new BehaviorSubject<any>(false);
   public data: any;
 
   constructor(public http: HttpClient, public utils: UtilsProvider) {}
+ 
 
-  login(payload) {
+  get(month,year) {
     return this.http
-      .post(this.utils.apiUrl + "authenticate", payload)
+      .get(this.utils.apiUrl + "expenses/" + sessionStorage.getItem("id") + '/' + month + '/' + year)
       .map(res => {
-        //if(res.account.birthDate) res.account.birthDate = new Date(res.birthDate).toISOString();//new Date(moment(res.account.birthDate).format("YYYY-MM-DD"));
-        //this.account.next(res.account);
-        console.log(res);
-        if (res["token"]) {
-          sessionStorage.setItem("jwt", res["token"]);
-          sessionStorage.setItem("id", res["user"]["_id"]);
-        }
-        return res;
-      })
-      .catch((error: any) => Observable.throw(error || "Server error"));
-  }
-
-  get() {
-    return this.http
-      .get(this.utils.apiUrl + "accounts/" + sessionStorage.getItem("id"))
-      .map(res => {
-        return res;
+        return res["expenses"];
       })
       .catch((error: any) => Observable.throw(error || "Server error"));
   }
@@ -57,7 +43,7 @@ export class AccountProvider {
     } else {
       return this.http
         .put(
-          this.utils.apiUrl + "/accounts/" + sessionStorage.getItem("id"),
+          this.utils.apiUrl + "expenses/" + sessionStorage.getItem("id"),
           payload
         )
         .map(res => {

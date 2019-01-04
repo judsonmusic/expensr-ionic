@@ -13,11 +13,18 @@ import { AlertController } from 'ionic-angular/components/alert/alert-controller
 */
 @Injectable()
 export class UtilsProvider {
-
+  public apiUrl;
   public globalLoader;
   public types
 
   constructor(public http: HttpClient, public loadingCtrl: LoadingController, public modalCtrl: ModalController, public alertCtrl: AlertController, public events: Events) {
+    if(window.parent.location.hostname == "localhost"){
+      this.apiUrl = "http://localhost:3015/api/";
+    }else{    
+      this.apiUrl = "http://www.expensr.io/api/";
+    }
+    console.log('The host for the application is: ', window.parent.location.hostname, " We are using: ", this.apiUrl);
+
     //console.log('Hello UtilsProvider Provider');
     this.events.subscribe('logout', (item) => {
     // Do something with the clicked item data, e.g.:

@@ -18,6 +18,7 @@ import { CurrencyPipe } from '../pipes/currency/currency';
 import { OrderByPipe } from '../pipes/order-by/order-by';
 import { GroupByPipe } from '../pipes/group-by/group-by';
 import { CounterPipe } from '../pipes/counter/counter';
+import { ExpensesProvider } from '../providers/expenses/expenses';
 
 //enableProdMode();
 
@@ -49,7 +50,8 @@ import { CounterPipe } from '../pipes/counter/counter';
     CurrencyPipe,
     OrderByPipe,
     GroupByPipe,
-    CounterPipe
+    CounterPipe,
+    ExpensesProvider
   ]
 })
 export class AppModule {}
